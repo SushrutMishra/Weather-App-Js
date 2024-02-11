@@ -1,45 +1,34 @@
-<!DOCTYPE html>
-<html>
-<head>
-  <title>Geolocation Example</title>
-</head>
-<body>
-  <div id="demo"></div>
+document.addEventListener('DOMContentLoaded', getWeather);
 
-  <script>
-    const x = document.getElementById("demo");
-
-    function getLocation() {
-      if (navigator.geolocation) {
-        navigator.geolocation.getCurrentPosition(showPosition, showError);
-      } else {
-        x.innerHTML = "Geolocation is not supported by this browser.";
-      }
+function getWeather() {
+    if (navigator.geolocation) {
+        navigator.geolocation.getCurrentPosition(showWeather);
+    } else {
+        showError("Geolocation is not supported by this browser.");
     }
+}
 
-    function showPosition(position) {
-      x.innerHTML = "Latitude: " + position.coords.latitude +
-      "<br>Longitude: " + position.coords.longitude;
-    }
+function showWeather(position) {
+    const latitude = position.coords.latitude;
+    const longitude = position.coords.longitude;
+    const apiKey = 'b66c5bfb25949cd68474af13feefe971'; // API key
+    const apiUrl = `https://api.openweathermap.org/data/2.5/weather?lat=${latitude}&lon=${longitude}&appid=${apiKey}`;
 
-    function showError(error) {
-      switch(error.code) {
-        case error.PERMISSION_DENIED:
-          x.innerHTML = "User denied the request for Geolocation.";
-          break;
-        case error.POSITION_UNAVAILABLE:
-          x.innerHTML = "Location information is unavailable.";
-          break;
-        case error.TIMEOUT:
-          x.innerHTML = "The request to get user location timed out.";
-          break;
-        case error.UNKNOWN_ERROR:
-          x.innerHTML = "An unknown error occurred.";
-          break;
-      }
-    }
+    fetch(apiUrl)
+        .then(response => response.json())
+        .then(data => {
+            const temperature = Math.round(data.main.temp - 273.15);
+            const description = data.weather[0].description;
+            const cityName = data.name;
+            const weatherInfo = `Current weather in ${cityName}: ${temperature}°C, ${description}.`;
+            document.querySelector('.weather-info').innerHTML = `<p>${weatherInfo}</p>`;
+        })
+        .catch(error => {
+            console.error('Error fetching weather data:', error);
+            showError("Error fetching weather data. Please try again later.");
+        });
+}
 
-    getLocation(); // Call the function to get the location when the page loads
-  </script>
-</body>
-</html>
+function showError(message) {
+    document.querySelector('.weather-info').innerHTML = `<p>${message}</p>`;
+}
