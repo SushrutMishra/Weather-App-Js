@@ -1,34 +1,32 @@
-document.addEventListener('DOMContentLoaded', getWeather);
+function weatherDetails(info){
+    if(info.cod == "404"){
+        infoTxt.innerText = `${inputField.value} isn't a valid city!`;
+        infoTxt.classList.add("error");
+    }else{
+        const city = info.name;
+        const country = info.sys.country;
+        const {description, icon} = info.weather[0];
+        const {temp, humidity} = info.main;
+        const {speed} = info.wind;
 
-function getWeather() {
-    if (navigator.geolocation) {
-        navigator.geolocation.getCurrentPosition(showWeather);
-    } else {
-        showError("Geolocation is not supported by this browser.");
+        document.getElementById('city').innerText = `${city}, ${country}`;
+        document.getElementById('temp').innerText = `${temp}°C`;
+        document.getElementById('description').innerText = description;
+        document.getElementById('icon').src = `https://openweathermap.org/img/wn/${icon}.png`;
+        document.getElementById('humidity').innerText = `Humidity: ${humidity}%`;
+        document.getElementById('wind').innerText = `Wind Speed: ${speed} m/s`;
+
+        // Add weather type class to body
+        const weatherType = description.toLowerCase().replace(/\s/g, '');
+        document.body.classList.add(weatherType);
+
+        infoTxt.classList.remove("pending");
+        wrapper.style.transform = "translateX(0)";
+        inputField.value = "";
+
+        // Remove weather type class from body after 5 seconds
+        setTimeout(() => {
+            document.body.classList.remove(weatherType);
+        }, 5000);
     }
-}
-
-function showWeather(position) {
-    const latitude = position.coords.latitude;
-    const longitude = position.coords.longitude;
-    const apiKey = 'b66c5bfb25949cd68474af13feefe971'; // API key
-    const apiUrl = `https://api.openweathermap.org/data/2.5/weather?lat=${latitude}&lon=${longitude}&appid=${apiKey}`;
-
-    fetch(apiUrl)
-        .then(response => response.json())
-        .then(data => {
-            const temperature = Math.round(data.main.temp - 273.15);
-            const description = data.weather[0].description;
-            const cityName = data.name;
-            const weatherInfo = `Current weather in ${cityName}: ${temperature}°C, ${description}.`;
-            document.querySelector('.weather-info').innerHTML = `<p>${weatherInfo}</p>`;
-        })
-        .catch(error => {
-            console.error('Error fetching weather data:', error);
-            showError("Error fetching weather data. Please try again later.");
-        });
-}
-
-function showError(message) {
-    document.querySelector('.weather-info').innerHTML = `<p>${message}</p>`;
 }
