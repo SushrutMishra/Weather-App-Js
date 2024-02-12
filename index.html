@@ -1,85 +1,28 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Weather Website</title>
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            margin: 0;
-            padding: 0;
-            background-color: #f0f0f0;
-        }
-        .container {
-            max-width: 800px;
-            margin: 0 auto;
-            padding: 20px;
-            background-color: #fff;
-            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-        }
-        .weather-info {
-            display: flex;
-            justify-content: space-between;
-            margin-bottom: 20px;
-        }
-        .weather-info .temp {
-            font-size: 48px;
-            font-weight: bold;
-        }
-        .weather-info .details {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-        }
-        .weather-info .details .weather {
-            font-size: 24px;
-            margin-bottom: 10px;
-        }
-        .weather-info .details .location {
-            font-size: 18px;
-            color: #666;
-        }
-        .weather-info .icon {
-            font-size: 120px;
-        }
-    </style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Weather Website</title>
+  <link rel="stylesheet" href="styles.css">
 </head>
 <body>
-    <div class="container">
-        <div class="weather-info">
-            <div class="temp" id="temp"></div>
-            <div class="details">
-                <div class="weather" id="weather"></div>
-                <div class="location" id="location"></div>
-            </div>
-            <div class="icon" id="icon"></div>
-        </div>
-    </div>
-    <script>
-        const apiKey = 'b66c5bfb25949cd68474af13feefe971';
-
-        if (navigator.geolocation) {
-            navigator.geolocation.getCurrentPosition(position => {
-                const lat = position.coords.latitude;
-                const lon = position.coords.longitude;
-
-                fetch(`https://api.openweathermap.org/data/2.5/weather?lat=${lat}&lon=${lon}&appid=${apiKey}&units=metric`)
-                    .then(response => response.json())
-                    .then(data => {
-                        const { main, weather, name } = data;
-                        const { temp, humidity } = main;
-                        const { icon, description } = weather[0];
-
-                        document.getElementById('temp').textContent = `${Math.round(temp)}°C`;
-                        document.getElementById('weather').textContent = description.charAt(0).toUpperCase() + description.slice(1);
-                        document.getElementById('location').textContent = name;
-                        document.getElementById('icon').textContent = String.fromCodePoint(parseInt(icon.slice(0, -1), 16));
-                    });
-            });
-        } else {
-            document.getElementById('location').textContent = 'Geolocation is not supported by your browser.';
-        }
-    </script>
+  <header>
+    <h1>Weather Website</h1>
+  </header>
+  
+  <main>
+    <section id="current-location">
+      <h2>Current Location</h2>
+      <div id="current-weather"></div>
+    </section>
+    
+    <section id="additional-locations">
+      <h2>Additional Locations</h2>
+      <ul id="location-list"></ul>
+    </section>
+  </main>
+  
+  <script src="script.js"></script>
 </body>
 </html>
