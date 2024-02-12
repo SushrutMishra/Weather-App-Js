@@ -1,32 +1,55 @@
-function weatherDetails(info){
-    if(info.cod == "404"){
-        infoTxt.innerText = `${inputField.value} isn't a valid city!`;
-        infoTxt.classList.add("error");
-    }else{
-        const city = info.name;
-        const country = info.sys.country;
-        const {description, icon} = info.weather[0];
-        const {temp, humidity} = info.main;
-        const {speed} = info.wind;
+// script.js
+window.addEventListener('load', () => {
+  // Get user's current location
+  if (navigator.geolocation) {
+    navigator.geolocation.getCurrentPosition(showWeather);
+  } else {
+    console.log('Geolocation is not supported by this browser.');
+  }
+});
 
-        document.getElementById('city').innerText = `${city}, ${country}`;
-        document.getElementById('temp').innerText = `${temp}°C`;
-        document.getElementById('description').innerText = description;
-        document.getElementById('icon').src = `https://openweathermap.org/img/wn/${icon}.png`;
-        document.getElementById('humidity').innerText = `Humidity: ${humidity}%`;
-        document.getElementById('wind').innerText = `Wind Speed: ${speed} m/s`;
+function showWeather(position) {
+  const latitude = position.coords.latitude;
+  const longitude = position.coords.longitude;
+  
+  // Fetch weather data for current location
+  fetch(`https://api.weatherapi.com/v1/current.json?key=b66c5bfb25949cd68474af13feefe971&q=${latitude},${longitude}`)
+    .then(response => response.json())
+    .then(data => {
+      const currentWeather = document.getElementById('current-weather');
+      currentWeather.innerHTML = `
+        <h3>${data.location.name}</h3>
+        <p>${data.current.condition.text}</p>
+        <img src="${data.current.condition.icon}" alt="Weather Icon">
+        <p>${data.current.temp_c}°C</p>
+      `;
+    })
+    .catch(error => {
+      console.log('Error:', error);
+    });
+}
 
-        // Add weather type class to body
-        const weatherType = description.toLowerCase().replace(/\s/g, '');
-        document.body.classList.add(weatherType);
-
-        infoTxt.classList.remove("pending");
-        wrapper.style.transform = "translateX(0)";
-        inputField.value = "";
-
-        // Remove weather type class from body after 5 seconds
-        setTimeout(() => {
-            document.body.classList.remove(weatherType);
-        }, 5000);
-    }
+// Function to add additional locations
+function addLocation() {
+  const locationInput = document.getElementById('location-input');
+  const locationList = document.getElementById('location-list');
+  
+  const location = locationInput.value;
+  
+  // Fetch weather data for the added location
+  fetch(`https://api.weatherapi.com/v1/current.json?key=b66c5bfb25949cd68474af13feefe971&q=${location}`)
+    .then(response => response.json())
+    .then(data => {
+      const li = document.createElement('li');
+      li.innerHTML = `
+        <h3>${data.location.name}</h3>
+        <p>${data.current.condition.text}</p>
+        <img src="${data.current.condition.icon}" alt="Weather Icon">
+        <p>${data.current.temp_c}°C</p>
+      `;
+      locationList.appendChild(li);
+    })
+    .catch(error => {
+      console.log('Error:', error);
+    });
 }
