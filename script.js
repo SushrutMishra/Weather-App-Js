@@ -50,7 +50,24 @@ function searchWeather() {
     const apiKey = 'b66c5bfb25949cd68474af13feefe971';
     const apiUrl = `https://api.openweathermap.org/data/2.5/weather?q=${cityName}&appid=${apiKey}`;
 
-    fetchWeather(apiUrl, `weather-card-${cityName}`);
+    createWeatherCard(cityName, apiUrl);
     // Clear input field after search
     document.querySelector('.search input').value = '';
+}
+
+function createWeatherCard(cityName, apiUrl) {
+    const weatherCardsContainer = document.querySelector('.weather-cards');
+    const newCardId = `weather-card-${cityName.replace(/\s+/g, '-')}`; // Replace spaces with dashes for the ID
+    const newWeatherCard = document.createElement('div');
+    newWeatherCard.classList.add('weather-card');
+    newWeatherCard.setAttribute('id', newCardId);
+    newWeatherCard.innerHTML = `
+        <h2>${cityName}</h2>
+        <div class="weather-info">
+            <p>Loading...</p>
+        </div>
+    `;
+    weatherCardsContainer.appendChild(newWeatherCard);
+
+    fetchWeather(apiUrl, newCardId);
 }
