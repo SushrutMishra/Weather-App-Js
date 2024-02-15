@@ -1,19 +1,23 @@
-document.addEventListener('DOMContentLoaded', getWeather);
+document.addEventListener('DOMContentLoaded', getWeatherForCurrentLocation);
 
-function getWeather() {
+function getWeatherForCurrentLocation() {
     if (navigator.geolocation) {
-        navigator.geolocation.getCurrentPosition(showWeather);
+        navigator.geolocation.getCurrentPosition(showWeatherForCurrentLocation);
     } else {
         showError("Geolocation is not supported by this browser.");
     }
 }
 
-function showWeather(position) {
+function showWeatherForCurrentLocation(position) {
     const latitude = position.coords.latitude;
     const longitude = position.coords.longitude;
     const apiKey = 'b66c5bfb25949cd68474af13feefe971';
     const apiUrl = `https://api.openweathermap.org/data/2.5/weather?lat=${latitude}&lon=${longitude}&appid=${apiKey}`;
 
+    fetchWeather(apiUrl, "current-location-card");
+}
+
+function fetchWeather(apiUrl, cardId) {
     fetch(apiUrl)
         .then(response => response.json())
         .then(data => {
@@ -21,7 +25,7 @@ function showWeather(position) {
             const description = data.weather[0].description;
             const cityName = data.name;
             const weatherInfo = `Current weather in ${cityName}: ${temperature}°C, ${description}.`;
-            document.querySelector('.weather-info').innerHTML = `<p>${weatherInfo}</p>`;
+            updateWeatherCard(cardId, weatherInfo);
         })
         .catch(error => {
             console.error('Error fetching weather data:', error);
@@ -29,6 +33,24 @@ function showWeather(position) {
         });
 }
 
+function updateWeatherCard(cardId, weatherInfo) {
+    const weatherCard = document.getElementById(cardId);
+    weatherCard.querySelector('.weather-info').innerHTML = `<p>${weatherInfo}</p>`;
+}
+
 function showError(message) {
-    document.querySelector('.weather-info').innerHTML = `<p>${message}</p>`;
+    const weatherCard = document.getElementById('current-location-card');
+    weatherCard.querySelector('.weather-info').innerHTML = `<p>${message}</p>`;
+}
+
+document.querySelector('.search button').addEventListener('click', searchWeather);
+
+function searchWeather() {
+    const cityName = document.querySelector('.search input').value;
+    const apiKey = 'b66c5bfb25949cd68474af13feefe971';
+    const apiUrl = `https://api.openweathermap.org/data/2.5/weather?q=${cityName}&appid=${apiKey}`;
+
+    fetchWeather(apiUrl, `weather-card-${cityName}`);
+    // Clear input field after search
+    document.querySelector('.search input').value = '';
 }
